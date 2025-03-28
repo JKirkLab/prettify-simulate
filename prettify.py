@@ -77,8 +77,8 @@ for step in steps:
 print(f"\nParsed: {len(steps) - len(unmatched)}")
 print(f"Unmatched: {len(unmatched)}\n")
 
-for step in unmatched:
-    print(f"{step}")
+# for step in unmatched:
+#     print(f"{step}")
 # for step in parsed_actions:
 #     print(step)
 source_labware = None
