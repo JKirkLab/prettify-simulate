@@ -1,7 +1,9 @@
-from opentrons.simulate import simulate, format_runlog
 import io
 import re
+import sys 
 
+from opentrons.simulate import simulate, format_runlog
+from opentrons.util.entrypoint_util import ProtocolEngineExecuteError
 from contextlib import redirect_stdout
 from rich.console import Console
 from rich.text import Text
@@ -9,15 +11,30 @@ from rich.panel import Panel
 
 
 protocol_file = open("../RobotProtocols/Protocols/Peptide_Quant_Assay.py")
-runlog, _bundle = simulate(
-    protocol_file,
-    custom_labware_paths=["../RobotProtocols/"] 
-)
-output_stream = io.StringIO()
-with redirect_stdout(output_stream):
-    print(format_runlog(runlog))
-runlog_output = output_stream.getvalue()
-steps = runlog_output.strip().splitlines()
+
+try:
+    runlog, _bundle = simulate(
+        protocol_file,
+        custom_labware_paths=["../RobotProtocols/"] 
+    )
+    output_stream = io.StringIO()
+    with redirect_stdout(output_stream):
+        print(format_runlog(runlog))
+    runlog_output = output_stream.getvalue()
+    steps = runlog_output.strip().splitlines()
+
+except ProtocolEngineExecuteError as e:
+    print("Simulation failed with the following error(s):\n")
+    for err in e.args[0]: 
+        print(f"• Type: {err.errorType}")
+        print(f"  Code: {err.errorCode}")
+        print(f"  Message: {err.detail}")
+        print(f"  Time: {err.createdAt}")
+        if err.wrappedErrors:
+            print("  ↪ Wrapped Errors:")
+            for wrapped in err.wrappedErrors:
+                print(f"    - {wrapped.errorType}: {wrapped.detail}")
+    sys.exit(1)
 
 action_patterns = {
     "Aspirating": (
