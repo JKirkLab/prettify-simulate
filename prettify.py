@@ -10,12 +10,12 @@ from rich.text import Text
 from rich.panel import Panel
 
 
-protocol_file = open("../RobotProtocols/Protocols/Peptide_Quant_Assay.py")
+protocol_file = open("../RobotProtocols/Protocols/bead_digest.py")
 
 try:
     runlog, _bundle = simulate(
         protocol_file,
-        custom_labware_paths=["../RobotProtocols/"] 
+        custom_labware_paths=["../RobotProtocols"] 
     )
     output_stream = io.StringIO()
     with redirect_stdout(output_stream):
@@ -31,7 +31,7 @@ except ProtocolEngineExecuteError as e:
         print(f"  Message: {err.detail}")
         print(f"  Time: {err.createdAt}")
         if err.wrappedErrors:
-            print("  ↪ Wrapped Errors:")
+            print("  -> Wrapped Errors:")
             for wrapped in err.wrappedErrors:
                 print(f"    - {wrapped.errorType}: {wrapped.detail}")
     sys.exit(1)
@@ -94,8 +94,8 @@ for step in steps:
 print(f"\nParsed: {len(steps) - len(unmatched)}")
 print(f"Unmatched: {len(unmatched)}\n")
 
-# for step in unmatched:
-#     print(f"{step}")
+for step in unmatched:
+    print(f"{step}")
 # for step in parsed_actions:
 #     print(step)
 source_labware = None
@@ -168,8 +168,8 @@ for action in parsed_actions:
 
 if current_group:
     grouped_steps.append(current_group)
-console = Console()
 
+console = Console()
 def summarize(groups: list[list[dict]]):
     for i, group in enumerate(groups):
         source_info = None
